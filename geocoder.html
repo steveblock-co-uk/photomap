@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+<html>
+  <body>
+    <textarea id="addresses">
+    </textarea>
+    <button id="button" disabled onclick="geocode()">Go</button>
+    <div id="results"></div>
+    <script>
+    </script>
+    <script>
+      function getPosition(addressString, onSuccess) {
+        geocoder.geocode( { 'address': addressString}, function(results, status) {
+          console.assert(status == 'OK', addressString, status);
+          onSuccess({
+            lat: results[0].geometry.location.lat(),
+            lng: results[0].geometry.location.lng()
+          });
+        });
+      }
+      
+      function go() {
+        geocoder = new google.maps.Geocoder();
+        document.getElementById('button').disabled = false;
+      }
+
+      var i = 0;
+      function geocode() {
+        document.getElementById('results').innerText = '';
+        addresses = document.getElementById('addresses').value.split('\n').filter(function(address) {
+          return /\S/.test(address);
+        });
+        process();
+      }
+
+      function process() {
+        getPosition(addresses[i], function(position) {
+          var results = document.getElementById('results');
+          var row = document.createElement('div');
+          row.textContent = 'address: \'' + addresses[i] + '\', latitude: ' + position.lat+ ', longitude: ' + position.lng;
+          results.appendChild(row);
+          ++i;
+          if (i < addresses.length) {
+            window.setTimeout(process, 500);
+          }
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2m1ZuGuWZswlxQdGB2BQXNoGo4aTNKNs&callback=go" async defer></script>
+  </body>
+</html>
